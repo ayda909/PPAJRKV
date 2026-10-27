@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPAJ JRKV Dashboard</title>
+<style>
+/* ─── DESIGN TOKENS ─────────────────────────────────────── */
+:root {
+  --navy:        #0D1B2A;
+  --navy-light:  #1B2E42;
+  --navy-hover:  #243D56;
+  --white:       #FFFFFF;
+  --gray-bg:     #F4F6F9;
+  --gray-border: #E2E8F0;
+  --green:       #16A34A;
+  --green-bg:    #DCFCE7;
+  --amber:       #D97706;
+  --amber-bg:    #FEF3C7;
+  --red:         #DC2626;
+  --red-bg:      #FEE2E2;
+  --blue:        #2563EB;
+  --blue-bg:     #DBEAFE;
+  --accent:      #2563EB;
+  --text-dark:   #1E293B;
+  --text-muted:  #64748B;
+  --sidebar-w:   260px;
+  --header-h:    60px;
+}
+
+/* ─── RESET ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 14px; background: var(--gray-bg); color: var(--text-dark); line-height: 1.6; }
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: inherit; }
+input, select, textarea { font-family: inherit; font-size: 14px; }
+
+/* ─── LAYOUT ─────────────────────────────────────────────── */
+.app-wrapper { display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--navy);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  z-index: 100;
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.sidebar-logo .logo-title {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.sidebar-logo .logo-sub {
+  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  margin-top: 2px;
+}
+.sidebar-logo .logo-badge {
+  display: inline-block;
+  margin-top: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+}
+.sidebar-nav { flex: 1; padding: 12px 0; }
+.nav-section-label {
+  color: rgba(255,255,255,0.35);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 10px 20px 4px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { background: var(--navy-hover); color: #fff; }
+.nav-item.active { background: var(--navy-light); color: #fff; border-left-color: var(--accent); }
+.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-item .nav-label { flex: 1; }
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.sidebar-user { display: flex; align-items: center; gap: 10px; }
+.user-avatar {
+  width: 34px; height: 34px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.user-name { color: #fff; font-size: 13px; font-weight: 600; }
+.user-role { color: rgba(255,255,255,0.45); font-size: 11px; }
+
+/* ─── MAIN AREA ──────────────────────────────────────────── */
+.main-area {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+.topbar {
+  height: var(--header-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--text-dark);
+  padding: 4px;
+}
+.topbar-title { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+.topbar-sub { font-size: 12px; color: var(--text-muted); margin-left: 4px; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-session-pill {
+  background: var(--blue-bg);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* ─── CONTENT ────────────────────────────────────────────── */
+.content { padding: 24px; flex: 1; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* ─── PAGE HEADING ───────────────────────────────────────── */
+.page-heading { margin-bottom: 20px; }
+.page-heading h1 { font-size: 20px; font-weight: 700; color: var(--text-dark); }
+.page-heading p  { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+/* ─── CARDS ──────────────────────────────────────────────── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title .card-title-icon { font-size: 16px; }
+
+/* ─── KPI GRID ───────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.kpi-card {
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.kpi-icon { font-size: 22px; margin-bottom: 2px; }
+.kpi-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.kpi-value { font-size: 28px; font-weight: 700; color: var(--text-dark); line-height: 1; }
+.kpi-sub { font-size: 11px; color: var(--text-muted); }
+.kpi-card.kpi-green .kpi-value { color: var(--green); }
+.kpi-card.kpi-amber .kpi-value { color: var(--amber); }
+.kpi-card.kpi-red   .kpi-value { color: var(--red); }
+.kpi-card.kpi-blue  .kpi-value { color: var(--blue); }
+
+/* ─── FILTER TOOLBAR ─────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.filter-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.btn-group { display: flex; gap: 4px; }
+.btn-filter {
+  padding: 6px 14px;
+  border: 1px solid var(--gray-border);
+  background: var(--white);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+.btn-filter:hover { border-color: var(--accent); color: var(--accent); }
+.btn-filter.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.filter-select {
+  padding: 6px 10px;
+  border: 1px solid var(--gray-border);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--text-dark);
+  font-size: 12px;
+}
+
+/* ─── TABS ───────────────────────────────────────────────── */
+.tab-bar { display: flex; gap: 0; border-bottom: 2px solid var(--gray-border); margin-bottom: 18px; }
+.tab-btn {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--accent); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ─── TABLE ──────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--gray-bg);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid var(--gray-border);
+  white-space: nowrap;
+}
+td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--gray-border);
+  color: var(--text-dark);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #FAFBFC; }
+
+/* ─── BADGES ─────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-green  { background: var(--green-bg);  color: var(--green); }
+.badge-amber  { background: var(--amber-bg);  color: var(--amber); }
+.badge-red    { background: var(--red-bg);    color: var(--red); }
+.badge-blue   { background: var(--blue-bg);   color: var(--blue); }
+.badge-gray   { background: var(--gray-bg);   color: var(--text-muted); border: 1px solid var(--gray-border); }
+
+/* ─── BUTTONS ────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-outline { background: var(--white); border-color: var(--gray-border); color: var(--text-dark); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-success { background: var(--green); color: #fff; }
+.btn-success:hover { background: #15803d; }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
+.btn-danger { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+
+/* ─── PROGRESS BAR ───────────────────────────────────────── */
+.progress-wrap { background: var(--gray-bg); border-radius: 999px; height: 8px; overflow: hidden; }
+.progress-bar  { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+.progress-green { background: var(--green); }
+.progress-amber { background: var(--amber); }
+.progress-red   { background: var(--red); }
+.progress-blue  { background: var(--blue); }
+
+/* ─── SESSION INFO BAR ───────────────────────────────────── */
+.session-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+}
+.session-item { display: flex; flex-direction: column; gap: 2px; }
+.session-item-label { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+.session-item-value { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+
+/* ─── CHART ──────────────────────────────────────────────── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.chart-card {
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+.chart-title { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 14px; }
+.chart-legend { display: flex; gap: 14px; margin-bottom: 12px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* Horizontal bar chart */
+.h-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.h-bar-label { width: 120px; font-size: 12px; color: var(--text-muted); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h-bar-track { flex: 1; background: var(--gray-bg); border-radius: 4px; height: 12px; overflow: hidden; }
+.h-bar-fill  { height: 100%; border-radius: 4px; transition: width 0.4s ease; min-width: 2px; }
+.h-bar-pct   { width: 38px; font-size: 11px; font-weight: 600; color: var(--text-dark); text-align: right; flex-shrink: 0; }
+
+/* Grouped bar chart (M8/M14) */
+.g-bar-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.g-bar-name  { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+.g-bar-row   { display: flex; align-items: center; gap: 8px; }
+.g-bar-key   { width: 30px; font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
+.g-bar-track { flex: 1; background: var(--gray-bg); border-radius: 3px; height: 10px; overflow: hidden; }
+.g-bar-fill  { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+
+/* Stacked bar */
+.s-bar-row   { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.s-bar-label { width: 50px; font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+.s-bar-track { flex: 1; background: var(--gray-bg); border-radius: 4px; height: 20px; overflow: hidden; display: flex; }
+.s-bar-seg   { height: 100%; transition: width 0.4s ease; }
+.s-bar-info  { font-size: 11px; color: var(--text-muted); margin-left: 4px; }
+
+/* ─── ALERT PANEL ────────────────────────────────────────── */
+.alert-list { display: flex; flex-direction: column; gap: 8px; }
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border-left: 4px solid;
+}
+.alert-item.alert-red   { background: var(--red-bg);   border-left-color: var(--red); }
+.alert-item.alert-amber { background: var(--amber-bg); border-left-color: var(--amber); }
+.alert-item.alert-blue  { background: var(--blue-bg);  border-left-color: var(--blue); }
+.alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.alert-body { flex: 1; }
+.alert-title { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+.alert-meta  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* ─── SEARCH ─────────────────────────────────────────────── */
+.search-wrap { position: relative; }
+.search-input {
+  width: 100%;
+  padding: 8px 12px 8px 34px;
+  border: 1px solid var(--gray-border);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--text-dark);
+  font-size: 13px;
+}
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 14px;
+  pointer-events: none;
+}
+.row-count { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+
+/* ─── CHECKLIST ──────────────────────────────────────────── */
+.checklist { display: flex; flex-direction: column; gap: 8px; }
+.check-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.check-icon { font-size: 16px; flex-shrink: 0; }
+.check-label { color: var(--text-dark); }
+.check-badges { display: flex; gap: 6px; margin-left: auto; }
+
+/* ─── BREAKDOWN PANEL ────────────────────────────────────── */
+.breakdown-row { display: none; }
+.breakdown-row.open { display: table-row; }
+.breakdown-panel {
+  padding: 14px 20px;
+  background: var(--gray-bg);
+  border-radius: 8px;
+  margin: 4px 0;
+}
+.breakdown-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.breakdown-label { width: 200px; font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+.breakdown-track { flex: 1; background: var(--gray-border); border-radius: 4px; height: 10px; overflow: hidden; }
+.breakdown-fill  { height: 100%; border-radius: 4px; transition: width 0.4s; }
+.breakdown-score { width: 60px; font-size: 12px; font-weight: 600; text-align: right; flex-shrink: 0; }
+
+/* ─── SETTINGS ───────────────────────────────────────────── */
+.settings-group { margin-bottom: 20px; }
+.settings-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gray-border);
+}
+.settings-group-title { font-size: 15px; font-weight: 600; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+.settings-active-badge { background: var(--green-bg); color: var(--green); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.3px; }
+.form-row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+.form-input {
+  padding: 8px 12px;
+  border: 1px solid var(--gray-border);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--text-dark);
+  font-size: 13px;
+}
+.form-input:focus { outline: none; border-color: var(--accent); }
+.form-select {
+  padding: 8px 12px;
+  border: 1px solid var(--gray-border);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--text-dark);
+  font-size: 13px;
+}
+.toggle-wrap { display: flex; align-items: center; gap: 10px; }
+.toggle {
+  position: relative;
+  width: 36px; height: 20px;
+  display: inline-block;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #CBD5E1;
+  border-radius: 20px;
+  transition: 0.3s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  left: 3px; bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.toggle input:checked + .toggle-slider { background: var(--green); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+/* ─── RUBRIC TABLE ───────────────────────────────────────── */
+.rubric-total-row { font-weight: 700; background: var(--gray-bg); }
+.rubric-input {
+  width: 70px;
+  padding: 5px 8px;
+  border: 1px solid var(--gray-border);
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+}
+.rubric-total-display {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.rubric-error { color: var(--red); font-size: 12px; margin-top: 6px; display: none; }
+
+/* ─── TOAST ──────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--navy);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ─── SIDEBAR OVERLAY (mobile) ───────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 99;
+}
+.sidebar-overlay.show { display: block; }
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-area { margin-left: 0; }
+  .hamburger { display: block; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .content { padding: 16px; }
+  .form-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar Overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<div class="app-wrapper">
+
+  <!-- ═══ SIDEBAR ════════════════════════════════════════════ -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-title">PPAJ JRKV</div>
+      <div class="logo-sub">Sistem Penasihatan Akademik</div>
+      <span class="logo-badge">JRKV · POLITEKNIK</span>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Utama</div>
+      <div class="nav-item active" onclick="showSection('dashboard-overview', this)">
+        <span class="nav-icon">🏠</span><span class="nav-label">Dashboard Overview</span>
+      </div>
+
+      <div class="nav-section-label">Pengurusan</div>
+      <div class="nav-item" onclick="showSection('pa-management', this)">
+        <span class="nav-icon">👥</span><span class="nav-label">PA Management</span>
+      </div>
+      <div class="nav-item" onclick="showSection('student-management', this)">
+        <span class="nav-icon">🎓</span><span class="nav-label">Student Management</span>
+      </div>
+
+      <div class="nav-section-label">Pemantauan</div>
+      <div class="nav-item" onclick="showSection('spak-monitoring', this)">
+        <span class="nav-icon">📊</span><span class="nav-label">SPAk Monitoring</span>
+      </div>
+      <div class="nav-item" onclick="showSection('at-risk', this)">
+        <span class="nav-icon">⚠️</span><span class="nav-label">At-Risk Students</span>
+      </div>
+
+      <div class="nav-section-label">Kecemerlangan</div>
+      <div class="nav-item" onclick="showSection('pa-excellence', this)">
+        <span class="nav-icon">🏆</span><span class="nav-label">PA Excellence Awards</span>
+      </div>
+
+      <div class="nav-section-label">Laporan</div>
+      <div class="nav-item" onclick="showSection('reports', this)">
+        <span class="nav-icon">📁</span><span class="nav-label">Reports & Analytics</span>
+      </div>
+      <div class="nav-item" onclick="showSection('cqi-tracking', this)">
+        <span class="nav-icon">🔁</span><span class="nav-label">CQI & Action Tracking</span>
+      </div>
+
+      <div class="nav-section-label">Sistem</div>
+      <div class="nav-item" onclick="showSection('settings', this)">
+        <span class="nav-icon">⚙️</span><span class="nav-label">Settings</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar">KP</div>
+        <div>
+          <div class="user-name">Ketua Program</div>
+          <div class="user-role">JRKV · Admin</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ MAIN AREA ══════════════════════════════════════════ -->
+  <div class="main-area">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <div>
+        <span class="topbar-title">PPAJ JRKV Dashboard</span>
+        <span class="topbar-sub">Sistem Penasihatan Akademik</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-session-pill" id="topbarSession">Sesi 2024/2025 · Sem 2</span>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+
+      <!-- ══════════════════════════════════════════════════════
+           SECTION 1 — DASHBOARD OVERVIEW
+      ═══════════════════════════════════════════════════════ -->
+      <section class="section active" id="dashboard-overview">
+        <div class="page-heading">
+          <h1>🏠 Dashboard Overview</h1>
+          <p>Ringkasan keseluruhan sistem penasihatan akademik JRKV</p>
+        </div>
+
+        <!-- Session Info Bar -->
+        <div class="session-bar" id="sessionBar"></div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <span class="filter-label">Program:</span>
+          <div class="btn-group">
+            <button class="btn-filter active" onclick="setDashFilter('ALL', this)">All JRKV</button>
+            <button class="btn-filter" onclick="setDashFilter('DCS', this)">DCS</button>
+            <button class="btn-filter" onclick="setDashFilter('DCV', this)">DCV</button>
+          </div>
+          <span class="filter-label" style="margin-left:10px">Sesi Akademik:</span>
+          <select class="filter-select" id="dashSessionSelect" onchange="renderDashboard()"></select>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid" id="kpiGrid"></div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">📋 SPAk Submission Status (M8 vs M14)</div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Minggu 8</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--navy)"></div>Minggu 14</div>
+            </div>
+            <div id="chartC1"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">🎓 Student Distribution</div>
+            <div id="chartC2"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">⚠️ At-Risk Students by Program</div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Risiko Tinggi</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Sederhana</div>
+            </div>
+            <div id="chartC3"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">📈 PA Performance Overview</div>
+            <div id="chartC4"></div>
+          </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">🔔</span> Notifikasi & Amaran</div>
+          <div id="alertPanel"></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           SECTION 2 — PA MANAGEMENT
+      ═══════════════════════════════════════════════════════ -->
+      <section class="section" id="pa-management">
+        <div class="page-heading">
+          <h1>👥 PA Management</h1>
+          <p>Pengurusan Penasihat Akademik mengikut program DCS dan DCV</p>
+        </div>
+        <div class="card">
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('pa-tab', 'pa-dcs', this)">📘 DCS</button>
+            <button class="tab-btn" onclick="switchTab('pa-tab', 'pa-dcv', this)">📗 DCV</button>
+          </div>
+          <div class="tab-panel active" id="pa-dcs">
+            <div class="table-wrap"><table id="paTableDCS"></table></div>
+          </div>
+          <div class="tab-panel" id="pa-dcv">
+            <div class="table-wrap"><table id="paTableDCV"></table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           SECTION 3 — STUDENT MANAGEMENT
+      ═══════════════════════════════════════════════════════ -->
+      <section class="section" id="student-management">
+        <div class="page-heading">
+          <h1>🎓 Student Management</h1>
+          <p>Senarai pelajar dengan penapis semester, program dan PA</p>
+        </div>
+        <div class="card">
+          <div class="filter-bar" style="flex-wrap:wrap; gap:10px; margin-bottom:14px">
+            <div class="form-group" style="min-width:160px; flex:0 0 auto">
+              <label class="form-label">Semester</label>
+              <select class="filter-select" id="stuSemFilter" onchange="renderStudentTable()"></select>
+            </div>
+            <div class="form-group" style="min-width:120px; flex:0 0 auto">
+              <label class="form-label">Program</label>
+              <div class="btn-group" style="margin-top:4px">
+                <button class="btn-filter active" onclick="setStuProgFilter('ALL', this)">Semua</button>
+                <button class="btn-filter" onclick="setStuProgFilter('DCS', this)">DCS</button>
+                <button class="btn-filter" onclick="setStuProgFilter('DCV', this)">DCV</button>
+              </div>
+            </div>
+            <div class="form-group" style="min-width:160px; flex:0 0 auto">
+              <label class="form-label">Penasihat Akademik</label>
+              <select class="filter-select" id="stuPaFilter" onchange="renderStudentTable()"></select>
+            </div>
+            <div class="form-group" style="flex:1; min-width:200px">
+              <label class="form-label">Carian</label>
+              <div class="search-wrap">
+                <span class="search-icon">🔍</span>
+                <input class="search-input" id="stuSearch" type="text" placeholder="Nama atau No. Matrik..." oninput="renderStudentTable()">
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap"><table id="studentTable"></table></div>
+          <div class="row-count" id="stuRowCount"></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           SECTION 4 — SPAK MONITORING
+      ═══════════════════════════════════════════════════════ -->
+      <section class="section" id="spak-monitoring">
+        <div class="page-heading">
+          <h1>📊 SPAk Monitoring</h1>
+          <p>Pemantauan penyerahan Laporan Minggu 8 dan Minggu 14</p>
+        </div>
+        <div class="filter-bar">
+          <span class="filter-label">Semester:</span>
+          <select class="filter-select" id="spakSemFilter" onchange="renderSpakTable()"></select>
+          <span class="filter-label">Program:</span>
+          <div class="btn-group">
+            <button class="btn-filter active" onclick="setSpakProgFilter('ALL', this)">Semua</button>
+            <button class="btn-filter" onclick="setSpakProgFilter('DCS', this)">DCS</button>
+            <button class="btn-filter" onclick="setSpakProgFilter('DCV', this)">DCV</button>
+          </div>
+        </div>
+        <!-- Compliance summary cards -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px">
+          <div class="card" style="margin-bottom:0">
+            <div class="card-title">📋 Minggu 8 — Kadar Penyerahan</div>
+            <div id="spakM8Rate"></div>
+          </div>
+          <div class="card" style="margin-bottom:0">
+            <div class="card-title">📋 Minggu 14 — Kadar Penyerahan</div>
+            <div id="spakM14Rate"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('spak-tab','spak-m8', this)">Minggu 8</button>
+            <button class="tab-btn" onclick="switchTab('spak-tab','spak-m14', this)">Minggu 14</button>
+          </div>
+          <div class="tab-panel active" id="spak-m8">
+            <div class="table-wrap"><table id="spakTableM8"></table></div>
+          </div>
+          <div class="tab-panel" id="spak-m14">
+            <div class="table-wrap"><table id="spakTableM14"></table></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">✅</span> Senarai Semak Pematuhan SPAk</div>
+          <div id="spakChecklist"></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           SECTION 5 — AT-RISK STUDENTS
+      ═══════════════════════════════════════════════════════ -->
+      <section class="section" id="at-risk">
+        <div class="page-heading">
+          <h1>⚠️ At-Risk Students</h1>
+          <p>Pemantauan pelajar berisiko mengikut tahap dan program</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:18px" id="riskSummaryCards"></div>
+        <div class="filter-bar">
+          <span class="filter-label">Tahap Risiko:</span>
+          <div class="btn-group">
+            <button class="btn-filter active" onclick="setRiskFilter('ALL', this)">Semua</button>
+            <button class="btn-filter" onclick="setRiskFilter('Tinggi', this)">🔴 Tinggi</button>
+            <button class="btn-filter" onclick="setRiskFilter('Sederhana', this)">🟡 Sederhana</button>
+          </div>
+          <span class="filter-label">Program:</span>
+          <div class="btn-group">
+            <button class="btn-filter active" onclick="setRiskProgFilter('ALL', this)">Semua</button>
+            <button class="btn-filter" onclick="setRiskProgFilter('DCS', this)">DCS</button>
+            <button class="btn-filter" onclick="setRiskProgFilter('DCV', this)">DCV</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table id="atRiskTable"></table></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           SECTION 6 — PA EXCELLENCE AWARDS
+      ═══════════════════════════════════════════════════════ -->
+      <section class="section" id="pa-excellence">
+        <div class="page-heading">
+          <h1>🏆 PA Excellence Awards</h1>
+          <p>Ranking Top 5 Penasihat Akademik terbaik — pencalonan PPAJ</p>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">📐</span> Rubrik Penilaian 100 Markah</div>
+          <div class="table-wrap"><table id="rubricDisplayTable"></table></div>
+        </div>
+        <div class="filter-bar">
+          <span class="filter-label">Semester:</span>
+          <select class="filter-select" id="awardSemFilter" onchange="renderAwards()"></select>
+          <span class="filter-label">Program:</span>
+          <div class="btn-group">
+            <button class="btn-filter active" onclick="setAwardProgFilter('ALL', this)">Semua</button>
+            <button class="btn-filter" onclick="setAwardProgFilter('DCS', this)">DCS</button>
+            <button class="btn-filter" onclick="setAwardProgFilter('DCV', this)">DCV</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table id="awardsTable"></table></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           SECTION 7 — REPORTS & ANALYTICS
+      ═══════════════════════════════════════════════════════ -->
+      <section class="section" id="reports">
+        <div class="page-heading">
+          <h1>📁 Reports & Analytics</h1>
+          <p>Laporan dan analisa mengikut semester dan program</p>
+        </div>
+        <div class="filter-bar">
+          <span class="filter-label">Semester:</span>
+          <select class="filter-select" id="rptSemFilter" onchange="renderReports()"></select>
+          <span class="filter-label">Program:</span>
+          <div class="btn-group">
+            <button class="btn-filter active" onclick="setRptProgFilter('ALL', this)">Gabungan</button>
+            <button class="btn-filter" onclick="setRptProgFilter('DCS', this)">DCS</button>
+            <button class="btn-filter" onclick="setRptProgFilter('DCV', this)">DCV</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">📋</span> Senarai Laporan</div>
+          <div class="table-wrap"><table id="reportTable"></table></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">📊</span> Analisa Perbandingan DCS vs DCV</div>
+          <div id="analyticsPanel"></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           SECTION 8 — CQI & ACTION TRACKING
+      ═══════════════════════════════════════════════════════ -->
+      <section class="section" id="cqi-tracking">
+        <div class="page-heading">
+          <h1>🔁 CQI & Action Tracking</h1>
+          <p>Pemantauan tindakan penambahbaikan kualiti berterusan</p>
+        </div>
+        <div class="filter-bar">
+          <span class="filter-label">Status:</span>
+          <div class="btn-group">
+            <button class="btn-filter active" onclick="setCqiStatusFilter('ALL', this)">Semua</button>
+            <button class="btn-filter" onclick="setCqiStatusFilter('Dalam Proses', this)">Dalam Proses</button>
+            <button class="btn-filter" onclick="setCqiStatusFilter('Belum Mula', this)">Belum Mula</button>
+            <button class="btn-filter" onclick="setCqiStatusFilter('Selesai', this)">Selesai</button>
+          </div>
+          <span class="filter-label">Program:</span>
+          <div class="btn-group">
+            <button class="btn-filter active" onclick="setCqiProgFilter('ALL', this)">Semua</button>
+            <button class="btn-filter" onclick="setCqiProgFilter('DCS', this)">DCS</button>
+            <button class="btn-filter" onclick="setCqiProgFilter('DCV', this)">DCV</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap"><table id="cqiTable"></table></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-title-icon">✅</span> Senarai Semak CQI</div>
+          <div id="cqiChecklist"></div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           SECTION 9 — SETTINGS
+      ═══════════════════════════════════════════════════════ -->
+      <section class="section" id="settings">
+        <div class="page-heading">
+          <h1>⚙️ Settings</h1>
+          <p>Konfigurasi sistem — semester, tarikh akhir dan kriteria penilaian</p>
+        </div>
+
+        <!-- Group 1: Semester Management -->
+        <div class="card settings-group">
+          <div class="settings-group-header">
+            <div class="settings-group-title">🗓️ Pengurusan Semester <span class="settings-active-badge">KONFIGURASI AKTIF</span></div>
+          </div>
+          <div class="table-wrap"><table id="settingsSemTable"></table></div>
+          <div style="margin-top:12px; display:flex; gap:10px; align-items:center">
+            <button class="btn btn-outline btn-sm" onclick="addSemesterRow()">+ Tambah Semester</button>
+            <button class="btn btn-primary btn-sm" onclick="saveSemesters()">💾 Simpan</button>
+          </div>
+        </div>
+
+        <!-- Group 2: Deadline Config -->
+        <div class="card settings-group">
+          <div class="settings-group-header">
+            <div class="settings-group-title">📅 Konfigurasi Tarikh Akhir <span class="settings-active-badge">KONFIGURASI AKTIF</span></div>
+          </div>
+          <div class="table-wrap"><table id="settingsDeadlineTable"></table></div>
+          <div style="margin-top:12px">
+            <button class="btn btn-primary btn-sm" onclick="saveDeadlines()">💾 Simpan Tarikh Akhir</button>
+          </div>
+        </div>
+
+        <!-- Group 3: Rubric Editor -->
+        <div class="card settings-group">
+          <div class="settings-group-header">
+            <div class="settings-group-title">📐 Kriteria Penilaian PA <span class="settings-active-badge">KONFIGURASI AKTIF</span></div>
+          </div>
+          <div class="table-wrap"><table id="settingsRubricTable"></table></div>
+          <div style="margin-top:12px; display:flex; gap:10px; align-items:center">
+            <button class="btn btn-primary btn-sm" onclick="saveRubric()">💾 Simpan Rubrik</button>
+            <span class="rubric-error" id="rubricError">⚠️ Jumlah markah mesti 100</span>
+          </div>
+        </div>
+
+        <!-- Group 4: Users -->
+        <div class="card settings-group">
+          <div class="settings-group-header">
+            <div class="settings-group-title">👤 Pengurusan Pengguna</div>
+            <span class="badge badge-gray">UI Sahaja</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Nama Penuh</label><input class="form-input" placeholder="Nama pengguna..." disabled></div>
+            <div class="form-group"><label class="form-label">ID Staf / Matrik</label><input class="form-input" placeholder="ID pengguna..." disabled></div>
+            <div class="form-group"><label class="form-label">Peranan</label>
+              <select class="form-select" disabled><option>Admin</option><option>Ketua Program</option><option>Penasihat Akademik</option><option>Pelajar</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Program</label>
+              <select class="form-select" disabled><option>DCS</option><option>DCV</option></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Group 5: Notifications -->
+        <div class="card settings-group">
+          <div class="settings-group-header">
+            <div class="settings-group-title">🔔 Tetapan Notifikasi</div>
+            <span class="badge badge-gray">UI Sahaja</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px">
+            <div class="toggle-wrap"><label class="toggle"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label><span>E-mel untuk laporan tertunggak</span></div>
+            <div class="toggle-wrap"><label class="toggle"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label><span>Peringatan 3 hari sebelum tarikh akhir</span></div>
+            <div class="toggle-wrap"><label class="toggle"><input type="checkbox" disabled><span class="toggle-slider"></span></label><span>Alert pelajar berisiko baharu</span></div>
+          </div>
+        </div>
+
+        <!-- Group 6: Roles -->
+        <div class="card settings-group">
+          <div class="settings-group-header">
+            <div class="settings-group-title">🔐 Peranan & Kebenaran</div>
+            <span class="badge badge-gray">UI Sahaja</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Peranan</th><th>Dashboard</th><th>PA Mgmt</th><th>Student</th><th>SPAk</th><th>Reports</th><th>Settings</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Admin</strong></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td><strong>Ketua Program</strong></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+                <tr><td><strong>PA</strong></td><td>✅</td><td>❌</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
+                <tr><td><strong>Pelajar</strong></td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Group 7: Backup -->
+        <div class="card settings-group">
+          <div class="settings-group-header">
+            <div class="settings-group-title">🗃️ Sandaran Data</div>
+            <span class="badge badge-gray">UI Sahaja</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Jadual Sandaran Automatik</label>
+              <select class="form-select" disabled><option>Harian</option><option>Mingguan</option><option>Bulanan</option></select>
+            </div>
+            <div class="form-group" style="justify-content:flex-end; padding-top:18px">
+              <button class="btn btn-outline" disabled>📥 Muat Turun Sandaran</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main><!-- /content -->
+  </div><!-- /main-area -->
+</div><!-- /app-wrapper -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DATASET — single source of truth
+═══════════════════════════════════════════════════════════ */
+const DATASET = {
+  academicSessions: [
+    { id: 'S1_2324', label: 'Sem 1 2023/24', semester: 1, year: '2023/24', active: false, deadlineM8: '2023-10-13', deadlineM14: '2023-12-08' },
+    { id: 'S2_2324', label: 'Sem 2 2023/24', semester: 2, year: '2023/24', active: false, deadlineM8: '2024-03-15', deadlineM14: '2024-05-10' },
+    { id: 'S1_2425', label: 'Sem 1 2024/25', semester: 1, year: '2024/25', active: false, deadlineM8: '2024-10-11', deadlineM14: '2024-12-06' },
+    { id: 'S2_2425', label: 'Sem 2 2024/25', semester: 2, year: '2024/25', active: true,  deadlineM8: '2025-03-14', deadlineM14: '2025-05-10' },
+  ],
+
+  rubric: [
+    { id: 'C1', label: 'Kadar Sesi Selesai',              max: 30 },
+    { id: 'C2', label: 'Ketepatan Masa Laporan M8 & M14', max: 20 },
+    { id: 'C3', label: 'Peningkatan Prestasi Pelajar',    max: 25 },
+    { id: 'C4', label: 'Maklum Balas Pelajar',            max: 15 },
+    { id: 'C5', label: 'Kelengkapan Laporan M8 & M14',    max: 10 },
+  ],
+
+  advisors: [
+    { id:'PA1', name:'Dr. Aminah Karim',  program:'DCS', targetSessions:20, rating:4.2,
+      sessions:{ 'S2_2425':18, 'S1_2425':17, 'S2_2324':16, 'S1_2324':15 },
+      m8:{ 'S2_2425':'2025-03-12', 'S1_2425':'2024-10-09', 'S2_2324':'2024-03-13', 'S1_2324':'2023-10-11' },
+      m14:{ 'S2_2425':'2025-05-10', 'S1_2425':'2024-12-04', 'S2_2324':'2024-05-08', 'S1_2324':'2023-12-06' } },
+    { id:'PA2', name:'Pn. Suraya Idris',  program:'DCS', targetSessions:20, rating:3.6,
+      sessions:{ 'S2_2425':10, 'S1_2425':12, 'S2_2324':11, 'S1_2324':10 },
+      m8:{ 'S2_2425':null, 'S1_2425':'2024-10-15', 'S2_2324':null, 'S1_2324':null },
+      m14:{ 'S2_2425':null, 'S1_2425':null, 'S2_2324':null, 'S1_2324':null } },
+    { id:'PA3', name:'En. Kamarul Azri',  program:'DCS', targetSessions:20, rating:3.8,
+      sessions:{ 'S2_2425':14, 'S1_2425':15, 'S2_2324':13, 'S1_2324':14 },
+      m8:{ 'S2_2425':'2025-03-13', 'S1_2425':'2024-10-10', 'S2_2324':'2024-03-14', 'S1_2324':'2023-10-12' },
+      m14:{ 'S2_2425':null, 'S1_2425':'2024-12-05', 'S2_2324':null, 'S1_2324':null } },
+    { id:'PA4', name:'En. Hafiz Ramli',   program:'DCV', targetSessions:20, rating:3.7,
+      sessions:{ 'S2_2425':15, 'S1_2425':16, 'S2_2324':14, 'S1_2324':13 },
+      m8:{ 'S2_2425':'2025-03-14', 'S1_2425':'2024-10-11', 'S2_2324':'2024-03-15', 'S1_2324':'2023-10-13' },
+      m14:{ 'S2_2425':null, 'S1_2425':'2024-12-06', 'S2_2324':null, 'S1_2324':null } },
+    { id:'PA5', name:'En. Razif Othman',  program:'DCV', targetSessions:20, rating:3.5,
+      sessions:{ 'S2_2425':7,  'S1_2425':8,  'S2_2324':9,  'S1_2324':7  },
+      m8:{ 'S2_2425':'2025-03-11', 'S1_2425':'2024-10-12', 'S2_2324':'2024-03-16', 'S1_2324':'2023-10-14' },
+      m14:{ 'S2_2425':null, 'S1_2425':null, 'S2_2324':null, 'S1_2324':null } },
+    { id:'PA6', name:'Pn. Norzila Ahmad', program:'DCV', targetSessions:20, rating:4.0,
+      sessions:{ 'S2_2425':18, 'S1_2425':17, 'S2_2324':16, 'S1_2324':15 },
+      m8:{ 'S2_2425':'2025-03-12', 'S1_2425':'2024-10-10', 'S2_2324':'2024-03-14', 'S1_2324':'2023-10-11' },
+      m14:{ 'S2_2425':'2025-05-09', 'S1_2425':'2024-12-05', 'S2_2324':'2024-05-09', 'S1_2324':'2023-12-07' } },
+  ],
+
+  students: [
+    { matric:'DCS231001', name:'Ahmad Faris',   program:'DCS', paId:'PA1', sem:'S2_2425', sessions:3, targetSessions:3, gpa:3.45, attend:92 },
+    { matric:'DCS231002', name:'Nurul Ain',      program:'DCS', paId:'PA2', sem:'S2_2425', sessions:1, targetSessions:3, gpa:2.10, attend:78 },
+    { matric:'DCS231003', name:'Irfan Hadi',     program:'DCS', paId:'PA3', sem:'S2_2425', sessions:2, targetSessions:3, gpa:2.75, attend:84 },
+    { matric:'DCS231004', name:'Liyana Azmi',    program:'DCS', paId:'PA1', sem:'S2_2425', sessions:3, targetSessions:3, gpa:3.20, attend:90 },
+    { matric:'DCS231005', name:'Zulaikha Noor',  program:'DCS', paId:'PA2', sem:'S2_2425', sessions:0, targetSessions:3, gpa:1.85, attend:70 },
+    { matric:'DCS221001', name:'Farah Diyana',   program:'DCS', paId:'PA1', sem:'S1_2425', sessions:3, targetSessions:3, gpa:3.10, attend:90 },
+    { matric:'DCS221002', name:'Hafizul Ilham',  program:'DCS', paId:'PA3', sem:'S1_2425', sessions:2, targetSessions:3, gpa:2.60, attend:82 },
+    { matric:'DCV231001', name:'Haziq Danial',   program:'DCV', paId:'PA4', sem:'S2_2425', sessions:2, targetSessions:3, gpa:2.85, attend:82 },
+    { matric:'DCV231002', name:'Siti Hajar',     program:'DCV', paId:'PA5', sem:'S2_2425', sessions:0, targetSessions:3, gpa:1.95, attend:72 },
+    { matric:'DCV231003', name:'Aiman Rifqi',    program:'DCV', paId:'PA6', sem:'S2_2425', sessions:3, targetSessions:3, gpa:3.60, attend:95 },
+    { matric:'DCV231004', name:'Nor Hidayah',    program:'DCV', paId:'PA4', sem:'S2_2425', sessions:2, targetSessions:3, gpa:2.90, attend:85 },
+    { matric:'DCV231005', name:'Izzul Fikri',    program:'DCV', paId:'PA5', sem:'S2_2425', sessions:1, targetSessions:3, gpa:2.30, attend:76 },
+    { matric:'DCV221001', name:'Fikri Asyraf',   program:'DCV', paId:'PA4', sem:'S1_2425', sessions:3, targetSessions:3, gpa:2.40, attend:80 },
+    { matric:'DCV221002', name:'Maisarah Huda',  program:'DCV', paId:'PA6', sem:'S1_2425', sessions:3, targetSessions:3, gpa:3.30, attend:88 },
+  ],
+
+  cqiActions: [
+    { id:'CQ-001', issue:'GPA pelajar menurun 3 semester berturut-turut', source:'M8',      program:'DCS', paId:'PA2', deadline:'2025-06-30', status:'Dalam Proses' },
+    { id:'CQ-002', issue:'Kadar hadir pelajar < 75% (3 pelajar)',         source:'At-Risk', program:'DCV', paId:'PA5', deadline:'2025-06-15', status:'Belum Mula' },
+    { id:'CQ-003', issue:'Laporan M8 tidak diserahkan dalam tempoh',      source:'SPAk',    program:'DCS', paId:'PA2', deadline:'2025-03-20', status:'Selesai' },
+    { id:'CQ-004', issue:'Tiada sesi susulan untuk pelajar berisiko',     source:'M14',     program:'DCV', paId:'PA4', deadline:'2025-05-10', status:'Dalam Proses' },
+    { id:'CQ-005', issue:'Rekod sesi tidak dikemaskini dalam sistem',     source:'SPAk',    program:'DCS', paId:'PA3', deadline:'2025-06-20', status:'Belum Mula' },
+  ],
+};
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let dashProgFilter   = 'ALL';
+let dashSessionId    = DATASET.academicSessions.find(s=>s.active).id;
+let stuProgFilter    = 'ALL';
+let stuPaFilter_val  = 'ALL';
+let spakProgFilter   = 'ALL';
+let riskFilter       = 'ALL';
+let riskProgFilter   = 'ALL';
+let awardProgFilter  = 'ALL';
+let rptProgFilter    = 'ALL';
+let cqiStatusFilter  = 'ALL';
+let cqiProgFilter    = 'ALL';
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+function getSession(id){ return DATASET.academicSessions.find(s=>s.id===id); }
+function getActiveSession(){ return DATASET.academicSessions.find(s=>s.active) || DATASET.academicSessions[DATASET.academicSessions.length-1]; }
+function getPA(id){ return DATASET.advisors.find(a=>a.id===id); }
+
+function computeStudentStatus(gpa, attend){
+  if(gpa < 2.00 || attend < 75) return { label:'Berisiko', cls:'badge-red', risk:'Tinggi' };
+  if(gpa < 2.50 || attend < 85) return { label:'Pantau',   cls:'badge-amber', risk:'Sederhana' };
+  return { label:'Baik', cls:'badge-green', risk:'none' };
+}
+
+function computeSubmissionStatus(submittedStr, deadlineStr){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const deadline = new Date(deadlineStr);
+  if(!submittedStr){
+    return today > deadline
+      ? { label:'Tertunggak', cls:'badge-red', submitted:false }
+      : { label:'Belum Serah', cls:'badge-blue', submitted:false };
+  }
+  const submitted = new Date(submittedStr);
+  const diff = Math.round((deadline - submitted)/(1000*60*60*24));
+  if(submitted <= deadline) return { label:'Dalam Tempoh', cls:'badge-green', submitted:true, diff };
+  return { label:'Lewat', cls:'badge-amber', submitted:true, diff };
+}
+
+function fmtDate(str){ if(!str) return '—'; const d=new Date(str); return d.toLocaleDateString('ms-MY',{day:'numeric',month:'short',year:'numeric'}); }
+function pct(n,d){ return d===0 ? 0 : Math.round(n/d*100); }
+
+function barColor(p){
+  if(p>=80) return 'var(--green)';
+  if(p>=60) return 'var(--amber)';
+  return 'var(--red)';
+}
+
+function hBar(label, value, max, color){
+  const p = max===0?0:Math.min(100,Math.round(value/max*100));
+  return `<div class="h-bar-row">
+    <div class="h-bar-label" title="${label}">${label}</div>
+    <div class="h-bar-track"><div class="h-bar-fill" style="width:${p}%;background:${color||barColor(p)}"></div></div>
+    <div class="h-bar-pct">${p}%</div>
+  </div>`;
+}
+
+function populateSessionSelect(elId, defaultId){
+  const el = document.getElementById(elId); if(!el) return;
+  el.innerHTML = DATASET.academicSessions.map(s=>`<option value="${s.id}" ${s.id===defaultId?'selected':''}>${s.label}</option>`).join('');
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════ */
+function showSection(id, el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  closeSidebar();
+}
+
+function switchTab(groupId, panelId, btn){
+  const panels = btn.closest('.card').querySelectorAll('.tab-panel');
+  const btns   = btn.closest('.card').querySelectorAll('.tab-btn');
+  panels.forEach(p=>p.classList.remove('active'));
+  btns.forEach(b=>b.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+function setFilterBtn(btn){
+  btn.closest('.btn-group').querySelectorAll('.btn-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 1 — DASHBOARD OVERVIEW
+═══════════════════════════════════════════════════════════ */
+function setDashFilter(prog, btn){ dashProgFilter=prog; setFilterBtn(btn); renderDashboard(); }
+
+function renderDashboard(){
+  dashSessionId = document.getElementById('dashSessionSelect').value || dashSessionId;
+  const sess = getSession(dashSessionId);
+
+  // Session Bar
+  document.getElementById('sessionBar').innerHTML = `
+    <div class="session-item"><div class="session-item-label">Sesi Akademik</div><div class="session-item-value">Sesi ${sess.year}</div></div>
+    <div class="session-item"><div class="session-item-label">Semester Semasa</div><div class="session-item-value">Semester ${sess.semester}</div></div>
+    <div class="session-item"><div class="session-item-label">Tarikh Akhir Minggu 8</div><div class="session-item-value" style="color:var(--amber)">${fmtDate(sess.deadlineM8)}</div></div>
+    <div class="session-item"><div class="session-item-label">Tarikh Akhir Minggu 14</div><div class="session-item-value" style="color:var(--amber)">${fmtDate(sess.deadlineM14)}</div></div>
+  `;
+
+  // Topbar pill
+  document.getElementById('topbarSession').textContent = `Sesi ${sess.year} · Sem ${sess.semester}`;
+
+  const PAs = dashProgFilter==='ALL' ? DATASET.advisors : DATASET.advisors.filter(a=>a.program===dashProgFilter);
+  const STUs = DATASET.students.filter(s=>s.sem===dashSessionId && (dashProgFilter==='ALL'||s.program===dashProgFilter));
+
+  const m8Submitted  = PAs.filter(a=>a.m8[dashSessionId]).length;
+  const m14Submitted = PAs.filter(a=>a.m14[dashSessionId]).length;
+  const m8Rate  = pct(m8Submitted, PAs.length);
+  const m14Rate = pct(m14Submitted, PAs.length);
+
+  const atRisk = STUs.filter(s=>computeStudentStatus(s.gpa,s.attend).risk!=='none').length;
+  const pendingCQI = DATASET.cqiActions.filter(c=>c.status!=='Selesai'&&(dashProgFilter==='ALL'||c.program===dashProgFilter)).length;
+
+  const kpiData = [
+    { icon:'👥', label:'Total Academic Advisors', value:PAs.length, sub:'PA aktif', cls:'kpi-blue' },
+    { icon:'🎓', label:'Total Students', value:STUs.length, sub:`Sesi ${sess.label}`, cls:'kpi-blue' },
+    { icon:'📋', label:'Week 8 Submission Rate', value:`${m8Rate}%`, sub:`${m8Submitted}/${PAs.length} PA`, cls: m8Rate>=80?'kpi-green':m8Rate>=60?'kpi-amber':'kpi-red' },
+    { icon:'📋', label:'Week 14 Submission Rate', value:`${m14Rate}%`, sub:`${m14Submitted}/${PAs.length} PA`, cls: m14Rate>=80?'kpi-green':m14Rate>=60?'kpi-amber':'kpi-red' },
+    { icon:'⚠️', label:'At-Risk Students', value:atRisk, sub:'pelajar berisiko', cls: atRisk===0?'kpi-green':atRisk<5?'kpi-amber':'kpi-red' },
+    { icon:'🔁', label:'Pending Follow-Up Actions', value:pendingCQI, sub:'tindakan CQI tertunggak', cls: pendingCQI===0?'kpi-green':pendingCQI<=2?'kpi-amber':'kpi-red' },
+  ];
+
+  document.getElementById('kpiGrid').innerHTML = kpiData.map(k=>`
+    <div class="kpi-card ${k.cls}">
+      <div class="kpi-icon">${k.icon}</div>
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+
+  renderCharts(PAs, STUs);
+  renderAlerts(PAs, sess);
+}
+
+function renderCharts(PAs, STUs){
+  // C1 - SPAk Submission
+  let c1 = '';
+  PAs.forEach(pa=>{
+    const m8p  = pa.m8[dashSessionId]  ? 100 : 0;
+    const m14p = pa.m14[dashSessionId] ? 100 : 0;
+    const shortName = pa.name.split(' ').slice(-1)[0];
+    c1 += `<div class="g-bar-group">
+      <div class="g-bar-name">${pa.name}</div>
+      <div class="g-bar-row"><div class="g-bar-key">M8</div><div class="g-bar-track"><div class="g-bar-fill" style="width:${m8p}%;background:var(--blue)"></div></div></div>
+      <div class="g-bar-row"><div class="g-bar-key">M14</div><div class="g-bar-track"><div class="g-bar-fill" style="width:${m14p}%;background:var(--navy-light)"></div></div></div>
+    </div>`;
+  });
+  document.getElementById('chartC1').innerHTML = c1;
+
+  // C2 - Student Distribution
+  const dcsCount = STUs.filter(s=>s.program==='DCS').length;
+  const dcvCount = STUs.filter(s=>s.program==='DCV').length;
+  const tot = dcsCount+dcvCount||1;
+  document.getElementById('chartC2').innerHTML = `
+    ${hBar('📘 DCS', dcsCount, tot, 'var(--blue)')}
+    ${hBar('📗 DCV', dcvCount, tot, 'var(--navy-light)')}
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Jumlah: ${tot} pelajar</div>`;
+
+  // C3 - At-Risk by Program
+  const programs = dashProgFilter==='ALL' ? ['DCS','DCV'] : [dashProgFilter];
+  let c3 = '';
+  programs.forEach(prog=>{
+    const progSTUs = STUs.filter(s=>s.program===prog);
+    const tinggi   = progSTUs.filter(s=>computeStudentStatus(s.gpa,s.attend).risk==='Tinggi').length;
+    const sederhana= progSTUs.filter(s=>computeStudentStatus(s.gpa,s.attend).risk==='Sederhana').length;
+    const total    = progSTUs.length||1;
+    const tp = pct(tinggi,total); const sp = pct(sederhana,total);
+    c3 += `<div class="s-bar-row">
+      <div class="s-bar-label">${prog}</div>
+      <div class="s-bar-track">
+        <div class="s-bar-seg" style="width:${tp}%;background:var(--red)" title="Tinggi: ${tinggi}"></div>
+        <div class="s-bar-seg" style="width:${sp}%;background:var(--amber)" title="Sederhana: ${sederhana}"></div>
+      </div>
+      <div class="s-bar-info">T:${tinggi} S:${sederhana}</div>
+    </div>`;
+  });
+  document.getElementById('chartC3').innerHTML = c3;
+
+  // C4 - PA Performance
+  let c4 = '';
+  PAs.forEach(pa=>{
+    const s = pa.sessions[dashSessionId]||0;
+    c4 += hBar(pa.name, s, pa.targetSessions, barColor(pct(s,pa.targetSessions)));
+  });
+  document.getElementById('chartC4').innerHTML = c4;
+}
+
+function renderAlerts(PAs, sess){
+  const alerts = [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dlM8  = new Date(sess.deadlineM8);
+  const dlM14 = new Date(sess.deadlineM14);
+  const in14  = new Date(today); in14.setDate(in14.getDate()+14);
+
+  PAs.forEach(pa=>{
+    if(!pa.m8[dashSessionId] && today > dlM8)
+      alerts.push({ cls:'alert-red', icon:'🔴', title:`Laporan Minggu 8 belum diserahkan`, meta:`${pa.name} · ${pa.program}` });
+  });
+  PAs.forEach(pa=>{
+    if(!pa.m14[dashSessionId] && today > dlM14)
+      alerts.push({ cls:'alert-red', icon:'🔴', title:`Laporan Minggu 14 belum diserahkan`, meta:`${pa.name} · ${pa.program}` });
+  });
+  if(dlM8 >= today && dlM8 <= in14)
+    alerts.push({ cls:'alert-amber', icon:'🟡', title:`Tarikh akhir Laporan Minggu 8 menghampiri`, meta:fmtDate(sess.deadlineM8) });
+  if(dlM14 >= today && dlM14 <= in14)
+    alerts.push({ cls:'alert-amber', icon:'🟡', title:`Tarikh akhir Laporan Minggu 14 menghampiri`, meta:fmtDate(sess.deadlineM14) });
+
+  DATASET.cqiActions.filter(c=>c.status!=='Selesai'&&(dashProgFilter==='ALL'||c.program===dashProgFilter)).forEach(c=>{
+    const pa = getPA(c.paId);
+    alerts.push({ cls:'alert-red', icon:'🔴', title:`Tindakan CQI belum selesai — ${c.id}`, meta:`${c.issue} · ${pa?pa.name:''} (${c.program})` });
+  });
+
+  const el = document.getElementById('alertPanel');
+  if(!alerts.length){ el.innerHTML='<p style="color:var(--text-muted);font-size:13px;padding:8px 0">✅ Tiada amaran pada masa ini.</p>'; return; }
+  el.innerHTML = `<div class="alert-list">${alerts.map(a=>`
+    <div class="alert-item ${a.cls}">
+      <div class="alert-icon">${a.icon}</div>
+      <div class="alert-body"><div class="alert-title">${a.title}</div><div class="alert-meta">${a.meta}</div></div>
+    </div>`).join('')}</div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 2 — PA MANAGEMENT
+═══════════════════════════════════════════════════════════ */
+function renderPATable(tableId, prog){
+  const PAs = DATASET.advisors.filter(a=>a.program===prog);
+  const sess = getActiveSession();
+  const thead = `<thead><tr><th>Nama PA</th><th>Program</th><th>Bil. Pelajar</th><th>Sesi Bulan Ini</th><th>M8</th><th>M14</th><th>Status</th></tr></thead>`;
+  const tbody = PAs.map(pa=>{
+    const stu = DATASET.students.filter(s=>s.paId===pa.id&&s.sem===sess.id).length;
+    const m8s  = computeSubmissionStatus(pa.m8[sess.id], sess.deadlineM8);
+    const m14s = computeSubmissionStatus(pa.m14[sess.id], sess.deadlineM14);
+    const sessDone = pa.sessions[sess.id]||0;
+    const sp = pct(sessDone, pa.targetSessions);
+    const statCls = sp>=80?'badge-green':sp>=50?'badge-amber':'badge-red';
+    const statLbl = sp>=80?'Aktif':sp>=50?'Sederhana':'Perlu Perhatian';
+    return `<tr><td><strong>${pa.name}</strong></td><td><span class="badge ${prog==='DCS'?'badge-blue':'badge-green'}">${prog}</span></td>
+      <td>${stu}</td><td>${sessDone}/${pa.targetSessions}</td>
+      <td><span class="badge ${m8s.cls}">${m8s.label}</span></td>
+      <td><span class="badge ${m14s.cls}">${m14s.label}</span></td>
+      <td><span class="badge ${statCls}">${statLbl}</span></td></tr>`;
+  }).join('');
+  document.getElementById(tableId).innerHTML = thead+`<tbody>${tbody}</tbody>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 3 — STUDENT MANAGEMENT
+═══════════════════════════════════════════════════════════ */
+function setStuProgFilter(prog, btn){ stuProgFilter=prog; setFilterBtn(btn); updateStuPaDropdown(); renderStudentTable(); }
+
+function updateStuPaDropdown(){
+  const sel = document.getElementById('stuPaFilter');
+  const PAs = stuProgFilter==='ALL' ? DATASET.advisors : DATASET.advisors.filter(a=>a.program===stuProgFilter);
+  sel.innerHTML = `<option value="ALL">Semua PA</option>` + PAs.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  sel.value = 'ALL'; stuPaFilter_val = 'ALL';
+}
+
+function renderStudentTable(){
+  const semId   = document.getElementById('stuSemFilter').value;
+  stuPaFilter_val = document.getElementById('stuPaFilter').value;
+  const search  = document.getElementById('stuSearch').value.toLowerCase();
+
+  let rows = DATASET.students.filter(s=>{
+    if(s.sem !== semId) return false;
+    if(stuProgFilter !== 'ALL' && s.program !== stuProgFilter) return false;
+    if(stuPaFilter_val !== 'ALL' && s.paId !== stuPaFilter_val) return false;
+    if(search && !s.name.toLowerCase().includes(search) && !s.matric.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  const thead = `<thead><tr><th>No. Matrik</th><th>Nama Pelajar</th><th>Program</th><th>Penasihat Akademik</th><th>Sesi</th><th>GPA</th><th>Hadir %</th><th>Status</th></tr></thead>`;
+  const tbody = rows.map(s=>{
+    const pa = getPA(s.paId);
+    const st = computeStudentStatus(s.gpa, s.attend);
+    const prog = s.program;
+    return `<tr><td><code>${s.matric}</code></td><td>${s.name}</td>
+      <td><span class="badge ${prog==='DCS'?'badge-blue':'badge-green'}">${prog}</span></td>
+      <td>${pa?pa.name:'—'}</td>
+      <td>${s.sessions}/${s.targetSessions}</td>
+      <td>${s.gpa.toFixed(2)}</td>
+      <td>${s.attend}%</td>
+      <td><span class="badge ${st.cls}">${st.label}</span></td></tr>`;
+  }).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:20px">Tiada rekod dijumpai</td></tr>`;
+  document.getElementById('studentTable').innerHTML = thead+`<tbody>${tbody}</tbody>`;
+  document.getElementById('stuRowCount').textContent = `Menunjukkan ${rows.length} daripada ${DATASET.students.length} pelajar`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 4 — SPAK MONITORING
+═══════════════════════════════════════════════════════════ */
+function setSpakProgFilter(prog, btn){ spakProgFilter=prog; setFilterBtn(btn); renderSpakTable(); }
+
+function renderSpakTable(){
+  const sessId = document.getElementById('spakSemFilter').value;
+  const sess   = getSession(sessId);
+  const PAs    = spakProgFilter==='ALL' ? DATASET.advisors : DATASET.advisors.filter(a=>a.program===spakProgFilter);
+
+  // Rate cards
+  ['M8','M14'].forEach(week=>{
+    const key = week==='M8'?'m8':'m14';
+    const dl  = week==='M8'?sess.deadlineM8:sess.deadlineM14;
+    const sub = PAs.filter(a=>a[key][sessId]).length;
+    const rate= pct(sub,PAs.length);
+    const color = rate>=80?'--green':rate>=60?'--amber':'--red';
+    document.getElementById(`spak${week}Rate`).innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <span style="font-size:24px;font-weight:700;color:var(${color})">${rate}%</span>
+        <span style="font-size:12px;color:var(--text-muted)">${sub} / ${PAs.length} PA · Tarikh akhir: ${fmtDate(dl)}</span>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar progress-${rate>=80?'green':rate>=60?'amber':'red'}" style="width:${rate}%"></div></div>`;
+  });
+
+  // Table builder
+  function buildTable(tableId, key, deadline){
+    const thead = `<thead><tr><th>Nama PA</th><th>Program</th><th>Tarikh Serah</th><th>Tarikh Akhir</th><th>Beza (hari)</th><th>Status</th></tr></thead>`;
+    const tbody = PAs.map(pa=>{
+      const st = computeSubmissionStatus(pa[key][sessId], deadline);
+      const diffTxt = st.submitted && st.diff!=null ? (st.diff>=0?`+${st.diff}`:st.diff)+'h' : '—';
+      const diffColor = st.submitted && st.diff!=null ? (st.diff>=0?'var(--green)':'var(--red)') : 'var(--text-muted)';
+      return `<tr><td>${pa.name}</td>
+        <td><span class="badge ${pa.program==='DCS'?'badge-blue':'badge-green'}">${pa.program}</span></td>
+        <td>${fmtDate(pa[key][sessId])}</td>
+        <td>${fmtDate(deadline)}</td>
+        <td style="color:${diffColor};font-weight:600">${diffTxt}</td>
+        <td><span class="badge ${st.cls}">${st.label}</span></td></tr>`;
+    }).join('');
+    document.getElementById(tableId).innerHTML = thead+`<tbody>${tbody}</tbody>`;
+  }
+  buildTable('spakTableM8',  'm8',  sess.deadlineM8);
+  buildTable('spakTableM14', 'm14', sess.deadlineM14);
+
+  // Checklist
+  const m8Sub  = PAs.filter(a=>a.m8[sessId]).length;
+  const m14Sub = PAs.filter(a=>a.m14[sessId]).length;
+  const checks = [
+    { label:'Laporan M8 diserahkan dalam tempoh', ok: m8Sub===PAs.length },
+    { label:'Laporan M14 diserahkan dalam tempoh', ok: m14Sub===PAs.length },
+    { label:'Semua PA menyerahkan laporan', ok: m8Sub===PAs.length && m14Sub===PAs.length },
+    { label:'Kadar penyerahan M8 ≥ 80%', ok: pct(m8Sub,PAs.length)>=80 },
+    { label:'Kadar penyerahan M14 ≥ 80%', ok: pct(m14Sub,PAs.length)>=80 },
+  ];
+  document.getElementById('spakChecklist').innerHTML = `<div class="checklist">${checks.map(c=>`
+    <div class="check-item">
+      <span class="check-icon">${c.ok?'✅':'❌'}</span>
+      <span class="check-label">${c.label}</span>
+    </div>`).join('')}</div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 5 — AT-RISK STUDENTS
+═══════════════════════════════════════════════════════════ */
+function setRiskFilter(val, btn){ riskFilter=val; setFilterBtn(btn); renderAtRisk(); }
+function setRiskProgFilter(val, btn){ riskProgFilter=val; setFilterBtn(btn); renderAtRisk(); }
+
+function renderAtRisk(){
+  const sess = getActiveSession();
+  let rows = DATASET.students.filter(s=>{
+    if(s.sem !== sess.id) return false;
+    const st = computeStudentStatus(s.gpa, s.attend);
+    if(riskFilter !== 'ALL' && st.risk !== riskFilter) return false;
+    if(riskProgFilter !== 'ALL' && s.program !== riskProgFilter) return false;
+    return st.risk !== 'none';
+  });
+
+  const all  = DATASET.students.filter(s=>s.sem===sess.id&&computeStudentStatus(s.gpa,s.attend).risk!=='none');
+  const tHigh= all.filter(s=>computeStudentStatus(s.gpa,s.attend).risk==='Tinggi').length;
+  const tSed = all.filter(s=>computeStudentStatus(s.gpa,s.attend).risk==='Sederhana').length;
+  document.getElementById('riskSummaryCards').innerHTML = `
+    <div class="kpi-card kpi-red"><div class="kpi-icon">🔴</div><div class="kpi-label">Risiko Tinggi</div><div class="kpi-value">${tHigh}</div><div class="kpi-sub">pelajar</div></div>
+    <div class="kpi-card kpi-amber"><div class="kpi-icon">🟡</div><div class="kpi-label">Risiko Sederhana</div><div class="kpi-value">${tSed}</div><div class="kpi-sub">pelajar</div></div>
+    <div class="kpi-card kpi-green"><div class="kpi-icon">🟢</div><div class="kpi-label">Dalam Pemantauan</div><div class="kpi-value">${tHigh+tSed}</div><div class="kpi-sub">jumlah dipantau</div></div>`;
+
+  const thead = `<thead><tr><th>No. Matrik</th><th>Nama</th><th>Program</th><th>PA</th><th>GPA</th><th>Hadir %</th><th>Risiko</th><th>Tindakan</th></tr></thead>`;
+  const tbody = rows.length ? rows.map(s=>{
+    const pa = getPA(s.paId);
+    const st = computeStudentStatus(s.gpa, s.attend);
+    return `<tr><td><code>${s.matric}</code></td><td>${s.name}</td>
+      <td><span class="badge ${s.program==='DCS'?'badge-blue':'badge-green'}">${s.program}</span></td>
+      <td>${pa?pa.name:'—'}</td>
+      <td style="color:${s.gpa<2.00?'var(--red)':s.gpa<2.50?'var(--amber)':'inherit'}">${s.gpa.toFixed(2)}</td>
+      <td style="color:${s.attend<75?'var(--red)':s.attend<85?'var(--amber)':'inherit'}">${s.attend}%</td>
+      <td><span class="badge ${st.cls}">${st.label}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="showToast('Kes dibuka untuk ${s.name}')">Buka Kes</button></td></tr>`;
+  }).join('') : `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:20px">Tiada pelajar berisiko dalam tapisan ini</td></tr>`;
+  document.getElementById('atRiskTable').innerHTML = thead+`<tbody>${tbody}</tbody>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 6 — PA EXCELLENCE AWARDS
+═══════════════════════════════════════════════════════════ */
+function setAwardProgFilter(prog, btn){ awardProgFilter=prog; setFilterBtn(btn); renderAwards(); }
+
+function computePAScore(pa, sessId){
+  const sess = getSession(sessId);
+  const myStudents = DATASET.students.filter(s=>s.paId===pa.id&&s.sem===sessId);
+  const sessDone = pa.sessions[sessId]||0;
+  const rubric = DATASET.rubric;
+
+  const C1 = Math.round((sessDone/pa.targetSessions) * rubric[0].max * 10)/10;
+  const m8ok  = pa.m8[sessId]  && new Date(pa.m8[sessId])  <= new Date(sess.deadlineM8);
+  const m14ok = pa.m14[sessId] && new Date(pa.m14[sessId]) <= new Date(sess.deadlineM14);
+  const C2 = (m8ok?rubric[1].max/2:0) + (m14ok?rubric[1].max/2:0);
+  const avgGPA = myStudents.length ? myStudents.reduce((a,s)=>a+s.gpa,0)/myStudents.length : 0;
+  const C3 = Math.round((avgGPA/4.00)*rubric[2].max*10)/10;
+  const C4 = Math.round((pa.rating/5.0)*rubric[3].max*10)/10;
+  const both = pa.m8[sessId]&&pa.m14[sessId]; const one = pa.m8[sessId]||pa.m14[sessId];
+  const C5 = both ? rubric[4].max : one ? rubric[4].max/2 : 0;
+  const total = Math.round((C1+C2+C3+C4+C5)*10)/10;
+  return { C1, C2, C3, C4, C5, total };
+}
+
+function renderAwards(){
+  const sessId = document.getElementById('awardSemFilter').value;
+
+  // Rubric display
+  const rth = `<thead><tr><th>#</th><th>Kriteria</th><th>Max Markah</th><th>Formula</th></tr></thead>`;
+  const formulas = ['sessions / target × max','10 per laporan dalam tempoh','Avg GPA / 4.00 × max','Rating / 5.0 × max','Kedua=max, Satu=max/2, Tiada=0'];
+  const rtb = DATASET.rubric.map((r,i)=>`<tr><td>${i+1}</td><td>${r.label}</td><td><strong>${r.max}</strong></td><td style="color:var(--text-muted);font-size:12px">${formulas[i]}</td></tr>`).join('');
+  const totalMax = DATASET.rubric.reduce((a,r)=>a+r.max,0);
+  document.getElementById('rubricDisplayTable').innerHTML = rth+`<tbody>${rtb}<tr class="rubric-total-row"><td colspan="2">Jumlah</td><td>${totalMax}</td><td>—</td></tr></tbody>`;
+
+  // Awards
+  const PAs = awardProgFilter==='ALL' ? DATASET.advisors : DATASET.advisors.filter(a=>a.program===awardProgFilter);
+  const scored = PAs.map(pa=>({ pa, score:computePAScore(pa,sessId) })).sort((a,b)=>b.score.total-a.score.total);
+  const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+
+  const thead = `<thead><tr><th>Kedudukan</th><th>Nama PA</th><th>Program</th><th>Skor / 100</th><th>Pecahan</th><th>Calon</th></tr></thead>`;
+  let rows = '';
+  scored.slice(0,5).forEach((item,i)=>{
+    const s = item.score; const pa = item.pa;
+    const scoreColor = s.total>=80?'var(--green)':s.total>=60?'var(--amber)':'var(--red)';
+    rows += `<tr>
+      <td style="font-size:20px">${medals[i]}</td>
+      <td><strong>${pa.name}</strong></td>
+      <td><span class="badge ${pa.program==='DCS'?'badge-blue':'badge-green'}">${pa.program}</span></td>
+      <td><span style="font-size:18px;font-weight:700;color:${scoreColor}">${s.total}</span><span style="color:var(--text-muted);font-size:12px"> / 100</span></td>
+      <td><button class="btn btn-outline btn-sm" onclick="toggleBreakdown('bd-${pa.id}')">Lihat Pecahan</button></td>
+      <td><button class="btn btn-primary btn-sm" onclick="showToast('${pa.name} dicalonkan ke PPAJ ✓')">Calon ke PPAJ</button></td>
+    </tr>
+    <tr class="breakdown-row" id="bd-${pa.id}"><td colspan="6">
+      <div class="breakdown-panel">
+        ${DATASET.rubric.map((r,idx)=>{
+          const sc=[s.C1,s.C2,s.C3,s.C4,s.C5][idx];
+          const pp=pct(sc,r.max);
+          return `<div class="breakdown-bar-row">
+            <div class="breakdown-label">${r.label}</div>
+            <div class="breakdown-track"><div class="breakdown-fill" style="width:${pp}%;background:${barColor(pp)}"></div></div>
+            <div class="breakdown-score" style="color:${barColor(pp)}">${sc} / ${r.max}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </td></tr>`;
+  });
+  document.getElementById('awardsTable').innerHTML = thead+`<tbody>${rows}</tbody>`;
+}
+
+function toggleBreakdown(id){
+  const row = document.getElementById(id);
+  row.classList.toggle('open');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 7 — REPORTS & ANALYTICS
+═══════════════════════════════════════════════════════════ */
+function setRptProgFilter(prog, btn){ rptProgFilter=prog; setFilterBtn(btn); renderReports(); }
+
+function renderReports(){
+  const sessId = document.getElementById('rptSemFilter').value;
+  const sess   = getSession(sessId);
+  const programs = rptProgFilter==='ALL' ? ['DCS','DCV'] : [rptProgFilter];
+
+  const reportTypes = [
+    { name:'Laporan Sesi Penasihatan', jenis:'Bulanan', type:'sessions' },
+    { name:'Laporan Penyerahan M8 & M14', jenis:'SPAk', type:'spak' },
+    { name:'Laporan Pelajar Berisiko', jenis:'At-Risk', type:'atrisk' },
+    { name:'Laporan Pematuhan PA', jenis:'Pematuhan', type:'pematuhan' },
+  ];
+
+  const thead = `<thead><tr><th>Nama Laporan</th><th>Jenis</th><th>Semester</th><th>Program</th><th>Tindakan</th></tr></thead>`;
+  let rows = '';
+  programs.forEach(prog=>{
+    reportTypes.forEach(r=>{
+      rows += `<tr>
+        <td>${r.name}</td><td><span class="badge badge-gray">${r.jenis}</span></td>
+        <td>${sess.label}</td>
+        <td><span class="badge ${prog==='DCS'?'badge-blue':'badge-green'}">${prog}</span></td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="generateCSV('${r.type}','${sessId}','${prog}')">⬇ CSV</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Export PDF belum tersedia')">PDF</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Export Excel belum tersedia')">Excel</button>
+        </td></tr>`;
+    });
+  });
+  document.getElementById('reportTable').innerHTML = thead+`<tbody>${rows}</tbody>`;
+
+  // Analytics
+  let html = '';
+  ['DCS','DCV'].forEach(prog=>{
+    const PAs = DATASET.advisors.filter(a=>a.program===prog);
+    const STUs = DATASET.students.filter(s=>s.sem===sessId&&s.program===prog);
+    const m8Rate  = pct(PAs.filter(a=>a.m8[sessId]).length,PAs.length);
+    const m14Rate = pct(PAs.filter(a=>a.m14[sessId]).length,PAs.length);
+    const avgSess = PAs.length ? Math.round(PAs.reduce((a,p)=>a+(p.sessions[sessId]||0),0)/PAs.length/PAs[0].targetSessions*100) : 0;
+    const baikPct = STUs.length ? pct(STUs.filter(s=>computeStudentStatus(s.gpa,s.attend).label==='Baik').length,STUs.length) : 0;
+    const color = prog==='DCS'?'var(--blue)':'var(--navy-light)';
+    html += `<div style="margin-bottom:20px"><div style="font-size:13px;font-weight:600;margin-bottom:10px">${prog==='DCS'?'📘':'📗'} ${prog}</div>
+      ${hBar('Kadar Sesi Selesai', avgSess, 100, color)}
+      ${hBar('Pematuhan M8',       m8Rate,  100, color)}
+      ${hBar('Pematuhan M14',      m14Rate, 100, color)}
+      ${hBar('Pelajar Status Baik',baikPct, 100, color)}
+    </div>`;
+  });
+  document.getElementById('analyticsPanel').innerHTML = html;
+}
+
+function generateCSV(type, sessId, prog){
+  const sess = getSession(sessId);
+  let headers, dataRows;
+  if(type==='sessions'||type==='pematuhan'){
+    headers=['Nama PA','Program','Semester','Sesi Selesai','Target','M8','M14'];
+    const PAs = DATASET.advisors.filter(a=>a.program===prog);
+    dataRows = PAs.map(a=>[a.name,a.program,sess.label,a.sessions[sessId]||0,a.targetSessions,a.m8[sessId]||'Tiada',a.m14[sessId]||'Tiada']);
+  } else if(type==='spak'){
+    headers=['Nama PA','Program','Semester','M8 Tarikh','M8 Status','M14 Tarikh','M14 Status'];
+    const PAs = DATASET.advisors.filter(a=>a.program===prog);
+    dataRows = PAs.map(a=>[a.name,a.program,sess.label,a.m8[sessId]||'Tiada',
+      computeSubmissionStatus(a.m8[sessId],sess.deadlineM8).label,a.m14[sessId]||'Tiada',
+      computeSubmissionStatus(a.m14[sessId],sess.deadlineM14).label]);
+  } else {
+    headers=['Matrik','Nama','Program','PA','GPA','Hadir%','Status'];
+    const STUs = DATASET.students.filter(s=>s.sem===sessId&&s.program===prog);
+    dataRows = STUs.filter(s=>computeStudentStatus(s.gpa,s.attend).risk!=='none').map(s=>{
+      const pa=getPA(s.paId); const st=computeStudentStatus(s.gpa,s.attend);
+      return [s.matric,s.name,s.program,pa?pa.name:'',s.gpa,s.attend+'%',st.label];
+    });
+  }
+  const csv = [headers,...dataRows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`${type}_${prog}_${sess.label.replace(/\//g,'-')}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`✅ CSV dimuat turun: ${type}_${prog}`);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 8 — CQI & ACTION TRACKING
+═══════════════════════════════════════════════════════════ */
+function setCqiStatusFilter(val, btn){ cqiStatusFilter=val; setFilterBtn(btn); renderCQI(); }
+function setCqiProgFilter(val, btn){ cqiProgFilter=val; setFilterBtn(btn); renderCQI(); }
+
+function renderCQI(){
+  const rows = DATASET.cqiActions.filter(c=>{
+    if(cqiStatusFilter!=='ALL' && c.status!==cqiStatusFilter) return false;
+    if(cqiProgFilter!=='ALL' && c.program!==cqiProgFilter) return false;
+    return true;
+  });
+
+  const statMap = { 'Dalam Proses':'badge-amber', 'Belum Mula':'badge-red', 'Selesai':'badge-green' };
+  const thead=`<thead><tr><th>ID</th><th>Isu</th><th>Sumber</th><th>Program</th><th>PA Bertindak</th><th>Tarikh Sasaran</th><th>Status</th></tr></thead>`;
+  const tbody = rows.length ? rows.map(c=>{
+    const pa = getPA(c.paId);
+    return `<tr><td><code>${c.id}</code></td><td>${c.issue}</td>
+      <td><span class="badge badge-gray">${c.source}</span></td>
+      <td><span class="badge ${c.program==='DCS'?'badge-blue':'badge-green'}">${c.program}</span></td>
+      <td>${pa?pa.name:'—'}</td><td>${fmtDate(c.deadline)}</td>
+      <td><span class="badge ${statMap[c.status]}">${c.status}</span></td></tr>`;
+  }).join('') : `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px">Tiada rekod dijumpai</td></tr>`;
+  document.getElementById('cqiTable').innerHTML = thead+`<tbody>${tbody}</tbody>`;
+
+  const tot    = DATASET.cqiActions.length;
+  const selesai= DATASET.cqiActions.filter(c=>c.status==='Selesai').length;
+  const checks = [
+    { label:'Isu direkodkan dan dikategorikan',           ok:tot>0 },
+    { label:'PA bertanggungjawab ditetapkan',             ok:DATASET.cqiActions.every(c=>c.paId) },
+    { label:'Tarikh sasaran ditetapkan',                  ok:DATASET.cqiActions.every(c=>c.deadline) },
+    { label:'Tindakan dalam proses dikesan',              ok:DATASET.cqiActions.some(c=>c.status==='Dalam Proses') },
+    { label:'Semua tindakan diselesaikan',                ok:selesai===tot },
+    { label:'Pengesahan Ketua Program',                   ok:selesai>0 },
+  ];
+  document.getElementById('cqiChecklist').innerHTML=`<div class="checklist">${checks.map(c=>`
+    <div class="check-item"><span class="check-icon">${c.ok?'✅':'❌'}</span><span class="check-label">${c.label}</span></div>`).join('')}</div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION 9 — SETTINGS
+═══════════════════════════════════════════════════════════ */
+function renderSettingsSemTable(){
+  const thead=`<thead><tr><th>Nama Sesi</th><th>Semester</th><th>Tahun</th><th>Status Aktif</th></tr></thead>`;
+  const tbody = DATASET.academicSessions.map((s,i)=>`<tr>
+    <td><input class="form-input" id="sname_${i}" value="${s.label}" style="width:140px"></td>
+    <td><select class="form-select" id="ssem_${i}" style="width:80px">
+      <option value="1" ${s.semester===1?'selected':''}>1</option>
+      <option value="2" ${s.semester===2?'selected':''}>2</option>
+    </select></td>
+    <td><input class="form-input" id="syear_${i}" value="${s.year}" style="width:90px"></td>
+    <td><label class="toggle"><input type="checkbox" id="sactive_${i}" ${s.active?'checked':''}><span class="toggle-slider"></span></label></td>
+  </tr>`).join('');
+  document.getElementById('settingsSemTable').innerHTML=thead+`<tbody>${tbody}</tbody>`;
+}
+
+function addSemesterRow(){
+  DATASET.academicSessions.push({ id:'NEW_'+Date.now(), label:'Sem 1 2025/26', semester:1, year:'2025/26', active:false, deadlineM8:'', deadlineM14:'' });
+  renderSettingsSemTable();
+  renderSettingsDeadlineTable();
+  showToast('Baris semester baharu ditambah');
+}
+
+function saveSemesters(){
+  DATASET.academicSessions.forEach((s,i)=>{
+    s.label    = document.getElementById(`sname_${i}`)?.value   || s.label;
+    s.semester = parseInt(document.getElementById(`ssem_${i}`)?.value)||s.semester;
+    s.year     = document.getElementById(`syear_${i}`)?.value   || s.year;
+    s.active   = document.getElementById(`sactive_${i}`)?.checked||false;
+  });
+  const active = DATASET.academicSessions.find(s=>s.active)||DATASET.academicSessions[DATASET.academicSessions.length-1];
+  document.getElementById('topbarSession').textContent=`Sesi ${active.year} · Sem ${active.semester}`;
+  populateAllSelects(); renderDashboard();
+  showToast('✅ Tetapan semester disimpan');
+}
+
+function renderSettingsDeadlineTable(){
+  const thead=`<thead><tr><th>Semester</th><th>Tarikh Akhir M8</th><th>Tarikh Akhir M14</th></tr></thead>`;
+  const tbody = DATASET.academicSessions.map((s,i)=>`<tr>
+    <td>${s.label}</td>
+    <td><input type="date" class="form-input" id="dm8_${i}" value="${s.deadlineM8||''}"></td>
+    <td><input type="date" class="form-input" id="dm14_${i}" value="${s.deadlineM14||''}"></td>
+  </tr>`).join('');
+  document.getElementById('settingsDeadlineTable').innerHTML=thead+`<tbody>${tbody}</tbody>`;
+}
+
+function saveDeadlines(){
+  DATASET.academicSessions.forEach((s,i)=>{
+    s.deadlineM8  = document.getElementById(`dm8_${i}`)?.value  || s.deadlineM8;
+    s.deadlineM14 = document.getElementById(`dm14_${i}`)?.value || s.deadlineM14;
+  });
+  renderSpakTable(); renderDashboard();
+  showToast('✅ Tarikh akhir disimpan');
+}
+
+function renderSettingsRubricTable(){
+  const thead=`<thead><tr><th>#</th><th>Kriteria</th><th>Max Markah</th></tr></thead>`;
+  const tbody = DATASET.rubric.map((r,i)=>`<tr>
+    <td>${i+1}</td><td>${r.label}</td>
+    <td><input class="rubric-input" type="number" id="rmax_${i}" value="${r.max}" min="0" max="100" oninput="updateRubricTotal()"></td>
+  </tr>`).join('');
+  const total=DATASET.rubric.reduce((a,r)=>a+r.max,0);
+  document.getElementById('settingsRubricTable').innerHTML=thead+`<tbody>${tbody}<tr class="rubric-total-row"><td colspan="2">Jumlah</td><td><span class="rubric-total-display" id="rubricTotalDisplay">${total}</span></td></tr></tbody>`;
+}
+
+function updateRubricTotal(){
+  let tot=0;
+  DATASET.rubric.forEach((_,i)=>{ tot+=parseInt(document.getElementById(`rmax_${i}`)?.value)||0; });
+  const disp=document.getElementById('rubricTotalDisplay');
+  if(disp){ disp.textContent=tot; disp.style.color=tot===100?'var(--green)':'var(--red)'; }
+  document.getElementById('rubricError').style.display=tot!==100?'inline':'none';
+}
+
+function saveRubric(){
+  let tot=0;
+  DATASET.rubric.forEach((_,i)=>{ tot+=parseInt(document.getElementById(`rmax_${i}`)?.value)||0; });
+  if(tot!==100){ document.getElementById('rubricError').style.display='inline'; return; }
+  DATASET.rubric.forEach((r,i)=>{ r.max=parseInt(document.getElementById(`rmax_${i}`)?.value)||r.max; });
+  renderAwards(); renderRubricDisplay();
+  showToast('✅ Rubrik penilaian disimpan');
+}
+
+function renderRubricDisplay(){
+  const rth=`<thead><tr><th>#</th><th>Kriteria</th><th>Max Markah</th><th>Formula</th></tr></thead>`;
+  const formulas=['sessions / target × max','10 per laporan dalam tempoh','Avg GPA / 4.00 × max','Rating / 5.0 × max','Kedua=max, Satu=max/2, Tiada=0'];
+  const rtb=DATASET.rubric.map((r,i)=>`<tr><td>${i+1}</td><td>${r.label}</td><td><strong>${r.max}</strong></td><td style="color:var(--text-muted);font-size:12px">${formulas[i]}</td></tr>`).join('');
+  const totalMax=DATASET.rubric.reduce((a,r)=>a+r.max,0);
+  const el=document.getElementById('rubricDisplayTable');
+  if(el) el.innerHTML=rth+`<tbody>${rtb}<tr class="rubric-total-row"><td colspan="2">Jumlah</td><td>${totalMax}</td><td>—</td></tr></tbody>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+function populateAllSelects(){
+  const activeSess = getActiveSession();
+  populateSessionSelect('dashSessionSelect', activeSess.id);
+  populateSessionSelect('stuSemFilter',      activeSess.id);
+  populateSessionSelect('spakSemFilter',     activeSess.id);
+  populateSessionSelect('awardSemFilter',    activeSess.id);
+  populateSessionSelect('rptSemFilter',      activeSess.id);
+}
+
+function init(){
+  populateAllSelects();
+  dashSessionId = getActiveSession().id;
+
+  renderDashboard();
+  renderPATable('paTableDCS','DCS');
+  renderPATable('paTableDCV','DCV');
+  updateStuPaDropdown();
+  renderStudentTable();
+  renderSpakTable();
+  renderAtRisk();
+  renderAwards();
+  renderReports();
+  renderCQI();
+
+  // Settings
+  renderSettingsSemTable();
+  renderSettingsDeadlineTable();
+  renderSettingsRubricTable();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
